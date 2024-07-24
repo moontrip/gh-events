@@ -4,9 +4,23 @@ name: Events Demo 1
 on:
   # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
   pull_request:
+    # activity types
     types:
       - opened
+    branches:
+      - main
+      - 'dev-*'
+      - 'feat/**'
   workflow_dispatch:
+  push:
+    # filters
+    branches:
+      - master
+      - 'dev-*'     # dev-new dev-this-is-new: * does not include slash (/)
+      - 'feat/**'   # feat/new feat/new/button: ** includes slash (/)
+    # paths:
+    paths-ignore:
+      - '.github/workflows/*'
 jobs:
   deploy:
     runs-on: ubuntu-latest
