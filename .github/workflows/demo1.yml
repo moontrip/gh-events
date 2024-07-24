@@ -1,5 +1,12 @@
 name: Events Demo 1
-on: ...
+# events: activity types & filters
+# on: [push, workflow_dispatch]
+on:
+  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
+  pull_request:
+    types:
+      - opened
+  workflow_dispatch:
 jobs:
   deploy:
     runs-on: ubuntu-latest
