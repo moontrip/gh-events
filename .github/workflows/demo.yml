@@ -20,6 +20,9 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    # DKDK set job output variable
+    outputs:
+      script-file: ${{ steps.publish.outputs.filename}}
     steps:
       - name: Get code
         uses: actions/checkout@v4
@@ -27,6 +30,12 @@ jobs:
         run: npm ci
       - name: Build website
         run: npm run build
+      # DKDK job output such as built file name
+      - name: Publish JS filename
+        # DKDK job output id
+        id: publish
+        # DKDK assign output value to job output variable
+        run: find dist/assets/*.js -type f -execdir echo 'filename={} >> $GITHUB_OUTPUT' ';'
       # DKDK build create dist directory and compiled files (artifacts), so add upload to a server
       - name: Upload artifacts
         # https://github.com/actions/upload-artifact
@@ -49,5 +58,8 @@ jobs:
           name: dist-files
       - name: Output contents
         run: ls
+      # DKDK use build's filename variable here
+      - name: Output filename
+        run: echo "${{ needs.build.outputs.script-file }}"
       - name: Deploy
         run: echo "Deploying..."
