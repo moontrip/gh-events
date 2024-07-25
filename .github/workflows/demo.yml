@@ -35,7 +35,13 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v4
-      # DKDK this takes longest time, so need to consider caching dependencies caching
+      # DKDK this takes longest time, so need to consider caching dependencies
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          # DKDK cache location
+          path: ~/.npm
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
       - name: Build website
