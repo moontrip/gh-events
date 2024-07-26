@@ -33,8 +33,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Test code
+        # DKDK this id is used for if statement below
+        id: run-tests
         run: npm run test
       - name: Upload test report
+        # DKDK add condition for the case that npm run test failed
+        # special conditional functions: failure(), success(), always(), cancelled()
+        if: failure() && steps.run-tests.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: test-report
@@ -73,3 +78,13 @@ jobs:
         run: ls
       - name: Deploy
         run: echo "Deploying..."
+  report:
+    # DKDK add failure() to run this job if previous job/step fails
+    needs: [lint, deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output information
+        run: |
+          echo "Something went wrong"
+          echo "${{ github }}"
