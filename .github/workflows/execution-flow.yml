@@ -13,6 +13,7 @@ jobs:
         id: cache
         uses: actions/cache@v4
         with:
+          # DKDK not clear what this local node_modules means instead of global ~/.npm
           path: node_modules
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
@@ -37,13 +38,16 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: Test code
+        # DKDK use below instead of if: failure() && steps.run-tests.outcome == 'failure'
+        # continue-on-error ignores Errors & Failures
+        continue-on-error: true
         # DKDK this id is used for if statement below
         id: run-tests
         run: npm run test
       - name: Upload test report
         # DKDK add condition for the case that npm run test failed
         # special conditional functions: failure(), success(), always(), cancelled()
-        if: failure() && steps.run-tests.outcome == 'failure'
+        # if: failure() && steps.run-tests.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: test-report
