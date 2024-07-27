@@ -39,7 +39,8 @@ jobs:
         run: npm ci
       - name: Test code
         # DKDK use below instead of if: failure() && steps.run-tests.outcome == 'failure'
-        # continue-on-error ignores Errors & Failures
+        # continue-on-error ignores Errors & Failures, thus this will continue to run other jobs like build & deploy
+        # On the other hand, if: failure()... makes run upload-artifact step, however, other jobs won't run because "test" job failed
         continue-on-error: true
         # DKDK this id is used for if statement below
         id: run-tests

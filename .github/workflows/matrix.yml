@@ -1,0 +1,27 @@
+# using matrix stategies
+name: Matrix Demo
+on: push
+jobs:
+  build:
+    # DKDK if using matrix, then all combinations are run
+    # here 3 nodejs and 2 OS so 6 jobs are run, though some may fail
+    # so to run all, then use continue-on-error
+    continue-on-error: true
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
+        operating-system: [ubuntu-latest, windows-latest]
+    # runs-on: ubuntu-latest
+    runs-on: ${{ matrix.operating-system}}
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          # node-version: 20
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Build project
+        run: npm run build
