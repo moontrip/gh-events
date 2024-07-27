@@ -1,0 +1,105 @@
+# workflow to reusable.yml
+# copied from execution-flow.yml
+name: Using resuable workflow
+on:
+  push:
+    branches:
+      - master
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          # DKDK not clear what this local node_modules means instead of global ~/.npm
+          path: node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        # DKDK skip npm ci if chace exists
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Lint code
+        run: npm run lint
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        # DKDK skip npm ci if chace exists
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Test code
+        # DKDK use below instead of if: failure() && steps.run-tests.outcome == 'failure'
+        # continue-on-error ignores Errors & Failures, thus this will continue to run other jobs like build & deploy
+        # On the other hand, if: failure()... makes run upload-artifact step, however, other jobs won't run because "test" job failed
+        continue-on-error: true
+        # DKDK this id is used for if statement below
+        id: run-tests
+        run: npm run test
+      - name: Upload test report
+        # DKDK add condition for the case that npm run test failed
+        # special conditional functions: failure(), success(), always(), cancelled()
+        # if: failure() && steps.run-tests.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test.json
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        # DKDK skip npm ci if chace exists
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Build website
+        id: build-website
+        run: npm run build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-files
+          path: dist
+  deploy:
+    needs: build
+    # DKDK changed to call reusable.yml instead
+    # runs-on: ubuntu-latest
+    # steps:
+    #   - name: Get build artifacts
+    #     uses: actions/download-artifact@v4
+    #     with:
+    #       name: dist-files
+    #   - name: Output contents
+    #     run: ls
+    #   - name: Deploy
+    #     run: echo "Deploying..."
+    uses: ./.github/workflows/reusable.yml
+  report:
+    # DKDK add failure() to run this job if previous job/step fails
+    needs: [lint, deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output information
+        run: |
+          echo "Something went wrong"
+          echo "${{ toJson(github) }}"
