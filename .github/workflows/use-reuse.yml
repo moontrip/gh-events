@@ -93,6 +93,9 @@ jobs:
     #   - name: Deploy
     #     run: echo "Deploying..."
     uses: ./.github/workflows/reusable.yml
+    # DKDK this is for resuable inputs
+    with:
+      artifact-name: dist-files
   report:
     # DKDK add failure() to run this job if previous job/step fails
     needs: [lint, deploy]
