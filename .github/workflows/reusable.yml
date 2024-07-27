@@ -9,8 +9,19 @@ on:
         required: true
         default: dist
         type: string
+      # DKDK one can add secrets
+      # secrets:
+      #   some-secret:
+      #     required: true
+    outputs:
+      result:
+        description: The result of the deployment operation
+        values: ${{ jobs.deploy.outputs.outcome }}
 jobs:
   deploy:
+    outputs:
+      # DKDK steps.{id value}.outputs.{variable name}
+      outcome: ${{ steps.set-result.outputs.step-result }}
     runs-on: ubuntu-latest
     steps:
       - name: Get code
@@ -21,3 +32,6 @@ jobs:
         run: ls
       - name: Output information
         run: echo "Deplying & uploading..."
+      - name: Set result outputs
+        id: set-result
+        run: echo "step-result=success" >> $GITHUB_OUTPUT

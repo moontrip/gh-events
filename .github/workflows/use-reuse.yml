@@ -93,9 +93,19 @@ jobs:
     #   - name: Deploy
     #     run: echo "Deploying..."
     uses: ./.github/workflows/reusable.yml
-    # DKDK this is for resuable inputs
+    # DKDK this is for resuable inputs (resuable.yml)
     with:
       artifact-name: dist-files
+    # DKDK if secrets is used at resuable, we need to make an input for secrets here
+    # secrets:
+    #   some-secret: ${{ secrets.some-secret}}
+  # DKDK print outputs that was defined at resuable.yml
+  print-deply-result:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print deploy output
+        run: echo "${{ needs.deploy.outputs.result }}"
   report:
     # DKDK add failure() to run this job if previous job/step fails
     needs: [lint, deploy]
