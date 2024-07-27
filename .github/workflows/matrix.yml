@@ -11,6 +11,13 @@ jobs:
       matrix:
         node-version: [16, 18, 20]
         operating-system: [ubuntu-latest, windows-latest]
+        # DKDK include add additional one
+        include:
+          - node-version: 14
+            operating-system: ubuntu-latest
+        exclude:
+          - node-version: 16
+            operating-system: ubuntu-latest
     # runs-on: ubuntu-latest
     runs-on: ${{ matrix.operating-system}}
     steps:
