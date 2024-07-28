@@ -21,10 +21,14 @@ jobs:
       #   run: npm ci
       # DKDK use custom composite action
       - name: Load & cache dependencies
+        id: cache-deps
         # DKDK no need to indicate file (action.yml)
         uses: ./.github/actions/cached-deps
         with:
           caching: 'false'
+      # DKDK check outputs defined at action.yml
+      - name: Output information
+        run: echo "Cache used? $${{ steps.cache-deps.outputs.used-cache }}"
       - name: Lint code
         run: npm run lint
   test:
