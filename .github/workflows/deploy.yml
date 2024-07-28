@@ -23,6 +23,8 @@ jobs:
       - name: Load & cache dependencies
         # DKDK no need to indicate file (action.yml)
         uses: ./.github/actions/cached-deps
+        with:
+          caching: 'false'
       - name: Lint code
         run: npm run lint
   test:
