@@ -105,6 +105,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Print deploy output
+        # DKDK format: needs.deploy.outputs.{resuable's outputs' variable name, result}
         run: echo "${{ needs.deploy.outputs.result }}"
   report:
     # DKDK add failure() to run this job if previous job/step fails
